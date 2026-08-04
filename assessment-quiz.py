@@ -5,51 +5,46 @@ from tkinter import messagebox
 
 
 def quit():
-    #Closes the window
-    root.destroy()
+    if messagebox.askokcancel(title=None, message="Are you sure you want to quit?"):
+        root.destroy()
 
-def settings():
+    #Closes the window
+
+def darkmode():
     ""
 
-def run_quiz_easy(question):
+def colourblind_mode():
+    ""
+
+def next_question(question_label, quiz_state):
+    quiz_state["question_index"]+=1
+
+    if quiz_state["question_index"]<len(quiz_state["questions"]):
+        question_label.config(text=quiz_state["questions"][quiz_state["question_index"]]["question"])
+
+    else:
+        question_label.config(text="Quiz complete")
+
+
+def run_quiz_easy(question_label, quiz_state):
     #Runs easy level quiz
     with open("assesment-quiz-easy.json", "r") as file:
         quiz_data = json.load(file)
     
-    #Sets a global variable score to keep score of how many questions you got right
-    global score
-    score = 0
+    quiz_state["score"]=0
+    quiz_state["question_index"]=0
+    quiz_state["questions"]=list(quiz_data.values())
+
+    question_label.config(text=quiz_state["questions"][0]["question"])
 
     #Prints questions
     for question_id, content in quiz_data.items():
-        question.config(text=content['question'])
-        question.update
+        question_label.config(text=content['question'])
+        question_label.update
         
         for choice in content['choices']:
-            question.update()
+            question_label.update()
         
-        #Takes in users answer
-        answer = input("Enter answer: ").strip()
-
-        if answer.lower() == content['answer'].lower():
-            print("Correct")
-            score += 1
-        else:
-            print(f"Incorrect, the right answer is {content['answer']}")
-        
-        #Prints score
-        print (f"Your score is {score}")
-
-    #Checks if you passed the level
-    if score >= 3:
-        print("Congrats you passed!")
-        print("Onto the next level")
-        run_quiz_medium()
-    elif score < 3:
-        print("Better luck next time")
-
-    
-
 
 def run_quiz_medium():
     #Runs medium level quiz
@@ -130,22 +125,29 @@ root.configure(bg="lightblue")
 
 def easy_gui():
     easy = Toplevel(root)
-    easy.geometry("320x330")
+    easy.geometry("450x320")
     easy.title("Easy quiz")
     easy.resizable(0,0)
     easy.configure(bg="Lightgreen")
     
+    #Title
     lbl1 = Label(easy, text="Easy quiz", font="Arial 22 bold", fg="Black", bg = "Lightgreen")
     lbl1.grid(row=0, column=0, pady=5, padx=10)
 
+    #Question
     question = Label(easy, text="", font="Arial 14 bold", fg="Black", bg = "Lightgreen")
     question.grid(row=1, column=0, ipady=10)
 
-    box1 = Entry(easy, justify=LEFT, font="Arial 22 bold")
-    box1.grid(row=2, column=0)
+    quiz_state = {}
+
+    run_quiz_easy(question, quiz_state)
+
+    #Place where user enter answer
+    user_entry = Entry(easy, justify=LEFT, font="Arial 22 bold")
+    user_entry.grid(row=2, column=0)
 
     #Button to enter answer
-    button_next = Button(easy, text = "Next", width = 10, bg = "Lightgreen", command = "")
+    button_next = Button(easy, text = "Next", width = 10, bg = "Lightgreen", command = lambda: next_question(question, quiz_state))
     button_next.grid(row = 3, column = 0, ipady =10, padx = 5, pady = 10)
 
     #Button to run settings
@@ -164,12 +166,15 @@ def medium_gui():
     medium.resizable(0,0)
     medium.configure(bg="Yellow")
     
+    #Title
     lbl1 = Label(medium, text="Medium quiz", font="Arial 22 bold", fg="Black", bg = "Yellow")
     lbl1.grid(row=0, column=0, pady=5, padx=10)
 
+    #Question
     question = Label(medium, text="", font="Arial 14 bold", fg="Black", bg = "Yellow")
     question.grid(row=1, column=0, ipady=10)
 
+    #Place where user enters answer
     box1 = Entry(medium, justify=LEFT, font="Arial 22 bold")
     box1.grid(row=2, column=0)
 
@@ -193,12 +198,15 @@ def hard_gui():
     hard.resizable(0,0)
     hard.configure(bg="Orange")
     
+    #Title
     lbl1 = Label(hard, text="Hard quiz", font="Arial 22 bold", fg="Black", bg = "Orange")
     lbl1.grid(row=0, column=0, pady=5, padx=10)
 
+    #Question
     question = Label(hard, text="", font="Arial 14 bold", fg="Black", bg = "Orange")
     question.grid(row=1, column=0, ipady=10)
 
+    #Place where user enters answer
     box1 = Entry(hard, justify=LEFT, font="Arial 22 bold")
     box1.grid(row=2, column=0)
 
@@ -222,15 +230,19 @@ def settings_gui():
     settings.resizable(0,0)
     settings.configure(bg="Lightgrey")
 
+    #Title
     lbl1 = Label(settings, text="Settings", font="Arial 22 bold", fg="Black", bg = "Lightgrey")
     lbl1.grid(row=0, column=1, pady=5, padx=10)
 
+    #Button to implement darkmode
     button_darkmode = Button(settings, text = "Dark mode", width = 10, bg = "Lightgrey", command = "")
     button_darkmode.grid(row=1, column=0, ipady = 10, padx = 5, pady = 10)
 
+    #Button to implement coulourblind mode
     button_colourblind_mode = Button(settings, text = "Colour blind mode", width = 14, bg = "Lightgrey", command = "")
     button_colourblind_mode.grid(row=1, column=1, ipady = 10, padx = 5, pady = 10)
 
+    #Button to quit
     button_quit = Button(settings, text = "Quit", width = 10, bg = "Lightgrey", command = quit)
     button_quit.grid(row=1, column=2, ipady = 10, padx = 5, pady = 10)
 
