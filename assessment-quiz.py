@@ -16,14 +16,29 @@ def darkmode():
 def colourblind_mode():
     ""
 
-def next_question(question_label, quiz_state):
+def next_question(question_label, quiz_state, user_entry):
+
+    current = quiz_state["questions"][quiz_state["question_index"]]
+    answer=user_entry.get()
+
+    if answer == current:
+        quiz_state["score"] += 1
+        messagebox.showinfo(title= "Correct", message= "Correct!!")
+
+    else:
+        messagebox.showinfo(title= "Incorrect", message= "Incorrect")
+
+    user_entry.delete(0, END)
+
     quiz_state["question_index"]+=1
 
     if quiz_state["question_index"]<len(quiz_state["questions"]):
         question_label.config(text=quiz_state["questions"][quiz_state["question_index"]]["question"])
 
     else:
-        question_label.config(text="Quiz complete")
+        score = quiz_state["score"]
+        question_label.config(text=f"Quiz complete {score}")
+    
 
 
 def run_quiz_easy(question_label, quiz_state):
@@ -125,9 +140,9 @@ root.configure(bg="lightblue")
 
 def easy_gui():
     easy = Toplevel(root)
-    easy.geometry("450x320")
+    easy.geometry("325x470")
     easy.title("Easy quiz")
-    easy.resizable(0,0)
+    easy.resizable(FALSE,FALSE)
     easy.configure(bg="Lightgreen")
     
     #Title
@@ -138,25 +153,34 @@ def easy_gui():
     question = Label(easy, text="", font="Arial 14 bold", fg="Black", bg = "Lightgreen")
     question.grid(row=1, column=0, ipady=10)
 
+    option1 = Label(easy, text="", font="Arial 14 bold", fg="Black", bg = "Lightgreen")
+    option1.grid(row=2, column=0, ipady=10)
+
+    option2 = Label(easy, text="", font="Arial 14 bold", fg="Black", bg = "Lightgreen")
+    option2.grid(row=3, column=0, ipady=10)
+
+    option3 = Label(easy, text="", font="Arial 14 bold", fg="Black", bg = "Lightgreen")
+    option3.grid(row=4, column=0, ipady=10)
+
     quiz_state = {}
 
     run_quiz_easy(question, quiz_state)
 
     #Place where user enter answer
     user_entry = Entry(easy, justify=LEFT, font="Arial 22 bold")
-    user_entry.grid(row=2, column=0)
+    user_entry.grid(row=5, column=0)
 
     #Button to enter answer
-    button_next = Button(easy, text = "Next", width = 10, bg = "Lightgreen", command = lambda: next_question(question, quiz_state))
-    button_next.grid(row = 3, column = 0, ipady =10, padx = 5, pady = 10)
+    button_next = Button(easy, text = "Next", width = 10, bg = "Lightgreen", command = lambda: next_question(question, quiz_state, user_entry))
+    button_next.grid(row = 6, column = 0, ipady =10, padx = 5, pady = 10)
 
     #Button to run settings
     button_settings = Button(easy, text = "Settings", width = 10, bg = "Lightgreen", command = settings_gui)
-    button_settings.grid(row=4, column=0, ipady =10, padx = 5, pady = 10)
+    button_settings.grid(row=7, column=0, ipady =10, padx = 5, pady = 10)
 
     #Button to quit the quiz
     button_quit = Button(easy, text = "Quit", width = 10, bg = "Lightgreen", command = quit)
-    button_quit.grid(row=5, column=0, ipady = 10, padx = 5, pady = 10)
+    button_quit.grid(row=8, column=0, ipady = 10, padx = 5, pady = 10)
 
 
 def medium_gui():
