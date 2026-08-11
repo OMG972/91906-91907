@@ -16,16 +16,18 @@ def quit():
     #Closes the window
 
 def darkmode():
-    ""
+    root.configure(bg="#413839")
 
 def colourblind_mode():
     ""
 
 def next_question(question_label, quiz_state, user_entry, option1, option2, option3, option4, button_next, result):
 
+    #Gets the user entry and the question
     current = quiz_state["questions"][quiz_state["question_index"]]
     answer=user_entry.get().strip()
 
+    #Tests to see if the answer is correct or not and if it is adds one to the score
     if answer.strip().lower() == current["answer"].lower().strip():
         quiz_state["score"] += 1
         result.configure(text=f"Correct")
@@ -33,10 +35,13 @@ def next_question(question_label, quiz_state, user_entry, option1, option2, opti
     else:
         result.configure(text=f"Incorrect")
 
+    #Resets the user entry box to blank
     user_entry.delete(0, END)
 
+    #Moves to next question
     quiz_state["question_index"]+=1
 
+    #Prints out all the choices
     if quiz_state["question_index"]<len(quiz_state["questions"]):
         current=quiz_state["questions"][quiz_state["question_index"]]
         question_label.config(text=current["question"])
@@ -49,6 +54,7 @@ def next_question(question_label, quiz_state, user_entry, option1, option2, opti
     else:
         score = quiz_state["score"]
 
+        #Shows the results of the quiz
         question_label.configure(text=f"Quiz complete! Your score is {score}/4")
 
         option1.config(text="")
@@ -56,13 +62,21 @@ def next_question(question_label, quiz_state, user_entry, option1, option2, opti
         option3.config(text="")
         option4.config(text="")
 
+        #Disables the next button once quiz is finished
         button_next.config(state=DISABLED)
 
-    if quiz_state["level"]=="easy" and score >=3:
-        result.configure(text=f"You passed")
+        #Tells if you passed the quiz or not
+        if quiz_state["level"]=="easy" and score >=3:
+            result.configure(text=f"You passed")
 
-    else:
-        result.configure(text=f"You didnt pass ):")
+        elif quiz_state["level"]=="medium" and score >=3:
+            result.configure(text=f"You passed")
+
+        elif quiz_state["level"]=="hard" and score >=3:
+            result.configure(text=f"You passed")
+
+        else:
+            result.configure(text=f"You didnt pass ):")
 
 
 def run_quiz_easy(question_label, quiz_state, option1, option2, option3, option4):
@@ -70,6 +84,7 @@ def run_quiz_easy(question_label, quiz_state, option1, option2, option3, option4
     with open("assesment-quiz-easy.json", "r") as file:
         quiz_data = json.load(file)
     
+    #Sets variables
     quiz_state["score"]=0
     quiz_state["question_index"]=0
     quiz_state["questions"]=list(quiz_data.values())
@@ -82,74 +97,42 @@ def run_quiz_easy(question_label, quiz_state, option1, option2, option3, option4
     option3.config(text=quiz_state["questions"][0]["choices"][2])   
     option4.config(text=quiz_state["questions"][0]["choices"][3])     
 
-def run_quiz_medium():
+def run_quiz_medium(question_label, quiz_state, option1, option2, option3, option4):
     #Runs medium level quiz
     with open("assesment-quiz-medium.json", "r") as file:
         quiz_data = json.load(file)
+    
+    #Sets variables
+    quiz_state["score"]=0
+    quiz_state["question_index"]=0
+    quiz_state["questions"]=list(quiz_data.values())
+    quiz_state["level"]="medium"
 
-        global score
+    question_label.config(text=quiz_state["questions"][0]["question"])
 
-    #Prints questions
-    for question_id, content in quiz_data.items():
-        print(f"\n{content['question']}")
-        
-        for choice in content['choices']:
-            print(f"- {choice}")
-        
-        #Takes in users answer
-        answer = input("Enter answer: ").strip()
-
-        if answer.lower() == content['answer'].lower():
-            print("Correct")
-            score += 1
-        else:
-            print(f"Incorrect, the right answer is {content['answer']}")
-        
-        #Print score
-        print (f"Your score is {score}")
-
-    #Checks if you passed the level
-    if score >= 6:
-        print("Congrats you passed!")
-        print("Onto the next level")
-        run_quiz_hard()
-    elif score < 6:
-        print("Better luck next time")
+    option1.config(text=quiz_state["questions"][0]["choices"][0])
+    option2.config(text=quiz_state["questions"][0]["choices"][1])   
+    option3.config(text=quiz_state["questions"][0]["choices"][2])   
+    option4.config(text=quiz_state["questions"][0]["choices"][3])  
 
 
-def run_quiz_hard():
+def run_quiz_hard(question_label, quiz_state, option1, option2, option3, option4):
     #Runs hard level quiz
     with open("assesment-quiz-hard.json", "r") as file:
         quiz_data = json.load(file)
+    
+    #Sets variables
+    quiz_state["score"]=0
+    quiz_state["question_index"]=0
+    quiz_state["questions"]=list(quiz_data.values())
+    quiz_state["level"]="hard"
 
-        global score
+    question_label.config(text=quiz_state["questions"][0]["question"])
 
-    #Prints questions
-    for question_id, content in quiz_data.items():
-        print(f"\n{content['question']}")
-        
-        for choice in content['choices']:
-            print(f"- {choice}")
-        
-        #Takes in users answer
-        answer = input("Enter answer: ").strip()
-
-        if answer.lower() == content['answer'].lower():
-            print("Correct")
-            score += 1
-        else:
-            print(f"Incorrect, the right answer is {content['answer']}")
-        
-        #Prints score
-        print (f"Your score is {score}")
-        
-    #Checks if you passed the level
-    if score >= 9:
-        print("Congrats you passed!")
-        print("You beat all the levels!")
-        run_quiz_medium()
-    elif score < 9:
-        print("Better luck next time")
+    option1.config(text=quiz_state["questions"][0]["choices"][0])
+    option2.config(text=quiz_state["questions"][0]["choices"][1])   
+    option3.config(text=quiz_state["questions"][0]["choices"][2])   
+    option4.config(text=quiz_state["questions"][0]["choices"][3])  
 
 
 def easy_gui():
@@ -159,14 +142,15 @@ def easy_gui():
     easy.resizable(FALSE,FALSE)
     easy.configure(bg="Lightgreen")
     
-    #Title
+    #Displays the title
     lbl1 = Label(easy, text="Easy quiz", font="Arial 22 bold", fg="Black", bg = "Lightgreen")
     lbl1.grid(row=1, column=0, columnspan=2, pady=(15,10))
 
-    #Question
+    #Displays the question
     question = Label(easy, text="", font="Arial 14 bold", fg="Black", bg = "Lightgreen")
     question.grid(row=2, column=0, columnspan=3, pady=10)
 
+    #Dispplays the options
     option1 = Label(easy, text="", font="Arial 14 bold", fg="Black", bg = "Lightgreen")
     option1.grid(row=3, column=0, sticky="w", pady=5, padx=10)
 
@@ -183,10 +167,11 @@ def easy_gui():
 
     run_quiz_easy(question, quiz_state, option1, option2, option3, option4)
 
-    #Place where user enter answer
+    #Lets user input their answer
     user_entry = Entry(easy, justify=LEFT, font="Arial 22 bold")
     user_entry.grid(row=7, column=0, columnspan=2, pady=20)
 
+    #Displays the result
     result = Label(easy, text="", font="Arial 14 bold", fg="Black", bg="Lightgreen")
     result.grid(row=8, column=0, columnspan=2, pady=20)
 
@@ -205,67 +190,107 @@ def easy_gui():
 
 def medium_gui():
     medium = Toplevel(root)
-    medium.geometry("320x330")
+    medium.geometry("325x470")
     medium.title("Medium quiz")
-    medium.resizable(0,0)
+    medium.resizable(FALSE,FALSE)
     medium.configure(bg="Yellow")
     
-    #Title
+    #Displays the title
     lbl1 = Label(medium, text="Medium quiz", font="Arial 22 bold", fg="Black", bg = "Yellow")
-    lbl1.grid(row=0, column=0, pady=5, padx=10)
+    lbl1.grid(row=1, column=0, columnspan=2, pady=(15,10))
 
-    #Question
+    #Displays the question
     question = Label(medium, text="", font="Arial 14 bold", fg="Black", bg = "Yellow")
-    question.grid(row=1, column=0, ipady=10)
+    question.grid(row=2, column=0, columnspan=3, pady=10)
 
-    #Place where user enters answer
-    box1 = Entry(medium, justify=LEFT, font="Arial 22 bold")
-    box1.grid(row=2, column=0)
+    #Dispplays the options
+    option1 = Label(medium, text="", font="Arial 14 bold", fg="Black", bg = "Yellow")
+    option1.grid(row=3, column=0, sticky="w", pady=5, padx=10)
+
+    option2 = Label(medium, text="", font="Arial 14 bold", fg="Black", bg = "Yellow")
+    option2.grid(row=4, column=0, sticky="w", pady=5, padx=10)
+
+    option3 = Label(medium, text="", font="Arial 14 bold", fg="Black", bg = "Yellow")
+    option3.grid(row=5, column=0, sticky="w", pady=5, padx=10)
+
+    option4 = Label(medium, text="", font="Arial 14 bold", fg="Black", bg = "Yellow")
+    option4.grid(row=6, column=0, sticky="w", pady=5, padx=10)
+
+    quiz_state = {}
+
+    run_quiz_medium(question, quiz_state, option1, option2, option3, option4)
+
+    #Lets user input their answer
+    user_entry = Entry(medium, justify=LEFT, font="Arial 22 bold")
+    user_entry.grid(row=7, column=0, columnspan=2, pady=20)
+
+    #Displays the result
+    result = Label(medium, text="", font="Arial 14 bold", fg="Black", bg="Yellow")
+    result.grid(row=8, column=0, columnspan=2, pady=20)
 
     #Button to enter answer
-    button_next = Button(medium, text = "Next", width = 10, bg = "Lightgreen", command = "")
-    button_next.grid(row = 3, column = 0, ipady =10, padx = 5, pady = 10)
+    button_next = Button(medium, text = "Next", width = 10, bg = "Yellow", command = lambda: next_question(question, quiz_state, user_entry, option1, option2, option3, option4, button_next, result))
+    button_next.grid(row = 9, column = 0, sticky="w", padx = 10, pady = 10)
 
     #Button to run settings
-    button_settings = Button(medium, text = "Settings", width = 10, bg = "Lightgreen", command = settings_gui)
-    button_settings.grid(row=4, column=0, ipady =10, padx = 5, pady = 10)
+    button_settings = Button(medium, text = "Settings", width = 10, bg = "Yellow", command = settings_gui)
+    button_settings.grid(row=9, column=0, columnspan= 2, pady = 10)
 
     #Button to quit the quiz
-    button_quit = Button(medium, text = "Quit", width = 10, bg = "Lightgreen", command = quit)
-    button_quit.grid(row=5, column=0, ipady = 10, padx = 5, pady = 10)
-
+    button_quit = Button(medium, text = "Quit", width = 10, bg = "Yellow", command = quit)
+    button_quit.grid(row=9, column=1, pady = 10)
 
 def hard_gui():
     hard = Toplevel(root)
-    hard.geometry("320x330")
+    hard.geometry("325x470")
     hard.title("Hard quiz")
-    hard.resizable(0,0)
-    hard.configure(bg="Orange")
+    hard.resizable(FALSE,FALSE)
+    hard.configure(bg="orange")
     
-    #Title
+    #Displays the title
     lbl1 = Label(hard, text="Hard quiz", font="Arial 22 bold", fg="Black", bg = "Orange")
-    lbl1.grid(row=0, column=0, pady=5, padx=10)
+    lbl1.grid(row=1, column=0, columnspan=2, pady=(15,10))
 
-    #Question
+    #Displays the question
     question = Label(hard, text="", font="Arial 14 bold", fg="Black", bg = "Orange")
-    question.grid(row=1, column=0, ipady=10)
+    question.grid(row=2, column=0, columnspan=3, pady=10)
 
-    #Place where user enters answer
-    box1 = Entry(hard, justify=LEFT, font="Arial 22 bold")
-    box1.grid(row=2, column=0)
+    #Dispplays the options
+    option1 = Label(hard, text="", font="Arial 14 bold", fg="Black", bg = "Orange")
+    option1.grid(row=3, column=0, sticky="w", pady=5, padx=10)
+
+    option2 = Label(hard, text="", font="Arial 14 bold", fg="Black", bg = "Orange")
+    option2.grid(row=4, column=0, sticky="w", pady=5, padx=10)
+
+    option3 = Label(hard, text="", font="Arial 14 bold", fg="Black", bg = "Orange")
+    option3.grid(row=5, column=0, sticky="w", pady=5, padx=10)
+
+    option4 = Label(hard, text="", font="Arial 14 bold", fg="Black", bg = "Orange")
+    option4.grid(row=6, column=0, sticky="w", pady=5, padx=10)
+
+    quiz_state = {}
+
+    run_quiz_hard(question, quiz_state, option1, option2, option3, option4)
+
+    #Lets user input their answer
+    user_entry = Entry(hard, justify=LEFT, font="Arial 22 bold")
+    user_entry.grid(row=7, column=0, columnspan=2, pady=20)
+
+    #Displays the result
+    result = Label(hard, text="", font="Arial 14 bold", fg="Black", bg="Orange")
+    result.grid(row=8, column=0, columnspan=2, pady=20)
 
     #Button to enter answer
-    button_next = Button(hard, text = "Next", width = 10, bg = "Lightgreen", command = "")
-    button_next.grid(row = 3, column = 0, ipady =10, padx = 5, pady = 10)
+    button_next = Button(hard, text = "Next", width = 10, bg = "Orange", command = lambda: next_question(question, quiz_state, user_entry, option1, option2, option3, option4, button_next, result))
+    button_next.grid(row = 9, column = 0, sticky="w", padx = 10, pady = 10)
 
     #Button to run settings
-    button_settings = Button(hard, text = "Settings", width = 10, bg = "Lightgreen", command = settings_gui)
-    button_settings.grid(row=4, column=0, ipady =10, padx = 5, pady = 10)
+    button_settings = Button(hard, text = "Settings", width = 10, bg = "Orange", command = settings_gui)
+    button_settings.grid(row=9, column=0, columnspan= 2, pady = 10)
 
     #Button to quit the quiz
-    button_quit = Button(hard, text = "Quit", width = 10, bg = "Lightgreen", command = quit)
-    button_quit.grid(row=5, column=0, ipady = 10, padx = 5, pady = 10)
-
+    button_quit = Button(hard, text = "Quit", width = 10, bg = "Orange", command = quit)
+    button_quit.grid(row=9, column=1, pady = 10)
 
 def settings_gui():
     settings = Toplevel(root)
@@ -279,7 +304,7 @@ def settings_gui():
     lbl1.grid(row=0, column=1, pady=5, padx=10)
 
     #Button to implement darkmode
-    button_darkmode = Button(settings, text = "Dark mode", width = 10, bg = "Lightgrey", command = "")
+    button_darkmode = Button(settings, text = "Dark mode", width = 10, bg = "Lightgrey", command = darkmode)
     button_darkmode.grid(row=1, column=0, ipady = 10, padx = 5, pady = 10)
 
     #Button to implement coulourblind mode
@@ -300,8 +325,8 @@ lbl2 = Label(root, text=f"Welcome to the knowledge quiz! This quiz is designed \
 button_run_quiz = Button(root, text = "Begin quiz easy", width = 14, bg = "lightblue", command = easy_gui)
 button_run_quiz.pack(side = LEFT, ipady = 10, padx = 5, pady = 10)
 
-#Button to run meduim level quiz
-button_run_quiz_medium = Button(root, text = "Begin quiz meduim", width = 14, bg = "lightblue", command = medium_gui)
+#Button to run medium level quiz
+button_run_quiz_medium = Button(root, text = "Begin quiz medium", width = 14, bg = "lightblue", command = medium_gui)
 button_run_quiz_medium.pack(side = LEFT, ipady = 10, padx = 5, pady = 10)
 
 #Button to run hard level quiz
