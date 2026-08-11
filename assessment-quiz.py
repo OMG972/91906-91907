@@ -3,6 +3,11 @@ import tkinter as tk
 from tkinter import *
 from tkinter import messagebox
 
+root = tk.Tk()
+root.title("Quiz")
+root.geometry("503x300")
+root.resizable(0,0)
+root.configure(bg="lightblue")
 
 def quit():
     if messagebox.askokcancel(title=None, message="Are you sure you want to quit?"):
@@ -16,32 +21,51 @@ def darkmode():
 def colourblind_mode():
     ""
 
-def next_question(question_label, quiz_state, user_entry):
+def next_question(question_label, quiz_state, user_entry, option1, option2, option3, option4, button_next, result):
 
     current = quiz_state["questions"][quiz_state["question_index"]]
-    answer=user_entry.get()
+    answer=user_entry.get().strip()
 
-    if answer == current:
+    if answer.strip().lower() == current["answer"].lower().strip():
         quiz_state["score"] += 1
-        messagebox.showinfo(title= "Correct", message= "Correct!!")
+        result.configure(text=f"Correct")
 
     else:
-        messagebox.showinfo(title= "Incorrect", message= "Incorrect")
+        result.configure(text=f"Incorrect")
 
     user_entry.delete(0, END)
 
     quiz_state["question_index"]+=1
 
     if quiz_state["question_index"]<len(quiz_state["questions"]):
-        question_label.config(text=quiz_state["questions"][quiz_state["question_index"]]["question"])
+        current=quiz_state["questions"][quiz_state["question_index"]]
+        question_label.config(text=current["question"])
+
+        option1.configure(text=current["choices"][0])
+        option2.configure(text=current["choices"][1])
+        option3.configure(text=current["choices"][2])
+        option4.configure(text=current["choices"][3])
 
     else:
         score = quiz_state["score"]
-        question_label.config(text=f"Quiz complete {score}")
-    
+
+        question_label.configure(text=f"Quiz complete! Your score is {score}/4")
+
+        option1.config(text="")
+        option2.config(text="")
+        option3.config(text="")
+        option4.config(text="")
+
+        button_next.config(state=DISABLED)
+
+    if quiz_state["level"]=="easy" and score >=3:
+        result.configure(text=f"You passed")
+
+    else:
+        result.configure(text=f"You didnt pass ):")
 
 
-def run_quiz_easy(question_label, quiz_state):
+def run_quiz_easy(question_label, quiz_state, option1, option2, option3, option4):
     #Runs easy level quiz
     with open("assesment-quiz-easy.json", "r") as file:
         quiz_data = json.load(file)
@@ -49,17 +73,14 @@ def run_quiz_easy(question_label, quiz_state):
     quiz_state["score"]=0
     quiz_state["question_index"]=0
     quiz_state["questions"]=list(quiz_data.values())
+    quiz_state["level"]="easy"
 
     question_label.config(text=quiz_state["questions"][0]["question"])
 
-    #Prints questions
-    for question_id, content in quiz_data.items():
-        question_label.config(text=content['question'])
-        question_label.update
-        
-        for choice in content['choices']:
-            question_label.update()
-        
+    option1.config(text=quiz_state["questions"][0]["choices"][0])
+    option2.config(text=quiz_state["questions"][0]["choices"][1])   
+    option3.config(text=quiz_state["questions"][0]["choices"][2])   
+    option4.config(text=quiz_state["questions"][0]["choices"][3])     
 
 def run_quiz_medium():
     #Runs medium level quiz
@@ -131,13 +152,6 @@ def run_quiz_hard():
         print("Better luck next time")
 
 
-root = tk.Tk()
-root.title("Quiz")
-root.geometry("503x300")
-root.resizable(0,0)
-root.configure(bg="lightblue")
-
-
 def easy_gui():
     easy = Toplevel(root)
     easy.geometry("325x470")
@@ -147,40 +161,46 @@ def easy_gui():
     
     #Title
     lbl1 = Label(easy, text="Easy quiz", font="Arial 22 bold", fg="Black", bg = "Lightgreen")
-    lbl1.grid(row=0, column=0, pady=5, padx=10)
+    lbl1.grid(row=1, column=0, columnspan=2, pady=(15,10))
 
     #Question
     question = Label(easy, text="", font="Arial 14 bold", fg="Black", bg = "Lightgreen")
-    question.grid(row=1, column=0, ipady=10)
+    question.grid(row=2, column=0, columnspan=3, pady=10)
 
     option1 = Label(easy, text="", font="Arial 14 bold", fg="Black", bg = "Lightgreen")
-    option1.grid(row=2, column=0, ipady=10)
+    option1.grid(row=3, column=0, sticky="w", pady=5, padx=10)
 
     option2 = Label(easy, text="", font="Arial 14 bold", fg="Black", bg = "Lightgreen")
-    option2.grid(row=3, column=0, ipady=10)
+    option2.grid(row=4, column=0, sticky="w", pady=5, padx=10)
 
     option3 = Label(easy, text="", font="Arial 14 bold", fg="Black", bg = "Lightgreen")
-    option3.grid(row=4, column=0, ipady=10)
+    option3.grid(row=5, column=0, sticky="w", pady=5, padx=10)
+
+    option4 = Label(easy, text="", font="Arial 14 bold", fg="Black", bg = "Lightgreen")
+    option4.grid(row=6, column=0, sticky="w", pady=5, padx=10)
 
     quiz_state = {}
 
-    run_quiz_easy(question, quiz_state)
+    run_quiz_easy(question, quiz_state, option1, option2, option3, option4)
 
     #Place where user enter answer
     user_entry = Entry(easy, justify=LEFT, font="Arial 22 bold")
-    user_entry.grid(row=5, column=0)
+    user_entry.grid(row=7, column=0, columnspan=2, pady=20)
+
+    result = Label(easy, text="", font="Arial 14 bold", fg="Black", bg="Lightgreen")
+    result.grid(row=8, column=0, columnspan=2, pady=20)
 
     #Button to enter answer
-    button_next = Button(easy, text = "Next", width = 10, bg = "Lightgreen", command = lambda: next_question(question, quiz_state, user_entry))
-    button_next.grid(row = 6, column = 0, ipady =10, padx = 5, pady = 10)
+    button_next = Button(easy, text = "Next", width = 10, bg = "Lightgreen", command = lambda: next_question(question, quiz_state, user_entry, option1, option2, option3, option4, button_next, result))
+    button_next.grid(row = 9, column = 0, sticky="w", padx = 10, pady = 10)
 
     #Button to run settings
     button_settings = Button(easy, text = "Settings", width = 10, bg = "Lightgreen", command = settings_gui)
-    button_settings.grid(row=7, column=0, ipady =10, padx = 5, pady = 10)
+    button_settings.grid(row=9, column=0, columnspan= 2, pady = 10)
 
     #Button to quit the quiz
     button_quit = Button(easy, text = "Quit", width = 10, bg = "Lightgreen", command = quit)
-    button_quit.grid(row=8, column=0, ipady = 10, padx = 5, pady = 10)
+    button_quit.grid(row=9, column=1, pady = 10)
 
 
 def medium_gui():
