@@ -10,16 +10,58 @@ root.resizable(0,0)
 root.configure(bg="lightblue")
 
 class settings:
+    #Automaticly sets dark_mode and coulourblind_mode to off
+    dark_mode=False
+    colourblind_mod=False
+    
     def quit():
         if messagebox.askokcancel(title=None, message="Are you sure you want to quit?"):
             root.destroy()
             #Closes the window
 
     def darkmode():
+        #Running darkmode turns it on and turns off colourblind mode.
+        settings.darkmode=True
+        settings.colourblind_mode=False
+
         root.configure(bg="#413839")
 
+        settings.update_all_windows()
+
     def colourblind_mode():
+        #Running colourblind mode turns it on and turns off darkmode.
+        settings.darkmode=False
+        settings.colourblind_mode=True
+
         root.configure(bg="#0072B2")
+
+        settings.update_all_windows()
+
+    def update_all_windows():
+        #Changes the colour of all open windows
+        settings.update_widgets(root)
+
+        for window in root.winfo_children():
+            if isinstance(window, Toplevel):
+                settings.update_widgets(window)
+
+    def update_widgets(window):
+        #Runs the code to change the colours checks if darkmode or colourblind mode is turned on and changes the colours if it is
+        for widget in window.winfo_children():
+            if settings.darkmode:
+                try:
+                    widget.configure(bg="#413839", fg="white")
+                except:
+                    pass
+            
+            elif settings.colourblind_mode:
+                try:
+                    widget.configure(bg="#0072B2", fg="black")
+                except:
+                    pass
+            
+            if widget.winfo_children():
+                settings.update_widgets(widget)
 
 class run_quiz:
     def next_question(question_label, quiz_state, user_entry, option1, option2, option3, option4, button_next, result):
